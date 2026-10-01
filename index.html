@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>HUY.AI</title>
+<meta name="theme-color" content="#07060f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HUY.AI">
+<link rel="icon" id="favicon">
+<link rel="apple-touch-icon" id="appleIcon">
+<link rel="manifest" id="manifest">
+<style>
+:root{
+  --bg:#07060f;--bg2:#0e0c1d;--panel:#141129;--line:#2a2450;
+  --txt:#ece9ff;--dim:#9a93c7;--cyan:#22e7ff;--pink:#ff2bd6;--violet:#8b5cff;--ok:#39ffa0;--err:#ff4d6d;
+  --glow:0 0 12px rgba(34,231,255,.45),0 0 28px rgba(139,92,255,.25);
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font:15.5px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+body{display:flex;flex-direction:column;height:100dvh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(60% 40% at 15% 0%,rgba(139,92,255,.18),transparent 70%),
+  radial-gradient(50% 35% at 100% 100%,rgba(255,43,214,.12),transparent 70%)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ico{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* header */
+header{position:relative;z-index:2;display:flex;align-items:center;gap:8px;padding:calc(8px + var(--safe-t)) 10px 8px;
+  border-bottom:1px solid var(--line);background:rgba(7,6,15,.8);backdrop-filter:blur(12px)}
+.hbtn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--dim)}
+.hbtn:active{background:var(--panel);color:var(--cyan)}
+.brand{flex:1;text-align:center;font-weight:800;letter-spacing:.12em;font-size:18px;
+  background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 8px rgba(34,231,255,.35))}
+.brand small{display:block;font-size:10.5px;letter-spacing:.06em;font-weight:500;color:var(--dim);-webkit-text-fill-color:var(--dim);filter:none}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--dim);margin-right:5px;vertical-align:1px}
+.dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}.dot.off{background:var(--err);box-shadow:0 0 8px var(--err)}
+
+/* chat */
+main{position:relative;z-index:1;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 12px 8px;scroll-behavior:smooth}
+.wrap{max-width:780px;margin:0 auto}
+.msg{display:flex;gap:10px;margin:0 0 18px;animation:pop .25s ease}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}}
+.msg.user{justify-content:flex-end}
+.bubble{max-width:88%;padding:10px 14px;border-radius:18px;word-wrap:break-word;overflow-wrap:anywhere}
+.user .bubble{background:linear-gradient(135deg,#5b2dff,#b21fd0);border-bottom-right-radius:6px;box-shadow:0 4px 18px rgba(139,92,255,.35);white-space:pre-wrap}
+.user .bubble img{display:block;max-width:220px;max-height:220px;border-radius:12px;margin-bottom:6px}
+.bot .av{flex:none;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:900;font-size:13px;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));color:#07060f;box-shadow:var(--glow);margin-top:2px}
+.bot .bubble{background:var(--panel);border:1px solid var(--line);border-top-left-radius:6px;max-width:calc(100% - 40px)}
+.bot .bubble.err{border-color:var(--err);color:#ffb3c1}
+.bubble p{margin:0 0 .6em}.bubble p:last-child{margin:0}
+.bubble h1,.bubble h2,.bubble h3{font-size:1.05em;margin:.8em 0 .4em;color:var(--cyan)}
+.bubble ul,.bubble ol{margin:.3em 0 .7em;padding-left:1.3em}.bubble li{margin:.2em 0}
+.bubble a{color:var(--cyan)}
+.bubble strong{color:#fff}
+.bubble code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:#0a0918;border:1px solid var(--line);padding:1px 5px;border-radius:6px;color:#ffd6fa}
+.bubble blockquote{margin:.5em 0;padding-left:10px;border-left:3px solid var(--violet);color:var(--dim)}
+.bubble table{border-collapse:collapse;margin:.5em 0;font-size:.92em;display:block;overflow-x:auto}
+.bubble th,.bubble td{border:1px solid var(--line);padding:5px 8px}.bubble th{background:#1c1838}
+.pre{position:relative;margin:.6em 0;border-radius:12px;border:1px solid var(--line);background:#07061a;overflow:hidden}
+.pre .lang{display:flex;justify-content:space-between;align-items:center;padding:4px 10px;font-size:11.5px;color:var(--dim);background:#110e26;border-bottom:1px solid var(--line)}
+.pre pre{margin:0;padding:10px 12px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;color:#d8f7ff}
+.pre pre code{background:none;border:0;padding:0;color:inherit}
+.mini{font-size:11.5px;color:var(--dim);padding:2px 6px;border-radius:6px}.mini:active{color:var(--cyan)}
+.acts{display:flex;gap:4px;margin-top:6px;opacity:.85}
+.acts button{padding:4px 8px;border-radius:8px;font-size:12px;color:var(--dim);display:flex;align-items:center;gap:4px}
+.acts button:active{background:#1c1838;color:var(--cyan)}
+.acts .ico{width:15px;height:15px}
+.typing span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:var(--cyan);animation:b 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s;background:var(--violet)}.typing span:nth-child(3){animation-delay:.3s;background:var(--pink)}
+@keyframes b{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1.1)}}
+.caret::after{content:"▋";color:var(--cyan);animation:bl 1s steps(2) infinite;margin-left:2px}
+@keyframes bl{50%{opacity:0}}
+
+/* welcome */
+.welcome{text-align:center;padding:9vh 8px 20px}
+.orb{width:92px;height:92px;margin:0 auto 18px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--cyan),var(--violet),var(--pink),var(--cyan));animation:spin 6s linear infinite;
+  box-shadow:0 0 40px rgba(34,231,255,.5),0 0 80px rgba(255,43,214,.3);position:relative}
+.orb::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.welcome h2{margin:0 0 6px;font-size:22px}
+.welcome p{color:var(--dim);margin:0 0 22px}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:520px;margin:0 auto}
+.chip{text-align:left;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(20,17,41,.7);font-size:13.5px}
+.chip b{display:block;color:var(--cyan);font-size:12px;margin-bottom:2px}
+.chip:active{border-color:var(--cyan);box-shadow:var(--glow)}
+
+/* composer */
+footer{position:relative;z-index:2;padding:8px 10px calc(10px + var(--safe-b));background:linear-gradient(transparent,var(--bg) 30%)}
+.box{max-width:780px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:6px;transition:.2s}
+.box:focus-within{border-color:var(--violet);box-shadow:var(--glow)}
+.preview{display:none;padding:6px 6px 2px;position:relative}
+.preview.show{display:block}
+.preview img{height:64px;border-radius:10px;border:1px solid var(--line)}
+.preview button{position:absolute;top:0;left:62px;width:22px;height:22px;border-radius:50%;background:var(--err);color:#fff;font-size:14px;line-height:1}
+.row{display:flex;align-items:flex-end;gap:2px}
+textarea{flex:1;resize:none;border:0;outline:0;background:none;color:var(--txt);font:inherit;font-size:16px;padding:9px 6px;max-height:160px;min-height:40px}
+textarea::placeholder{color:#6d6699}
+.cbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--dim);flex:none}
+.cbtn:active{color:var(--cyan)}
+.cbtn.rec{color:#fff;background:var(--err);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(255,77,109,.2)}}
+.send{background:linear-gradient(135deg,var(--cyan),var(--violet));color:#07060f;box-shadow:var(--glow)}
+.send:disabled{opacity:.35;box-shadow:none}
+.send.stop{background:var(--pink)}
+.hint{text-align:center;font-size:11px;color:#5f5890;margin-top:6px}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9;opacity:0;pointer-events:none;transition:.25s}
+.scrim.show{opacity:1;pointer-events:auto}
+aside{position:fixed;top:0;bottom:0;left:0;width:min(84vw,320px);z-index:10;background:var(--bg2);border-right:1px solid var(--line);
+  transform:translateX(-102%);transition:.28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:calc(12px + var(--safe-t)) 10px calc(12px + var(--safe-b))}
+aside.show{transform:none}
+.newbtn{display:flex;align-items:center;gap:8px;justify-content:center;padding:12px;border-radius:14px;font-weight:700;
+  background:linear-gradient(135deg,rgba(34,231,255,.15),rgba(139,92,255,.2));border:1px solid var(--violet);margin-bottom:12px}
+.list{flex:1;overflow-y:auto}
+.item{display:flex;align-items:center;gap:6px;padding:10px;border-radius:12px;font-size:14px;color:var(--dim)}
+.item.active{background:var(--panel);color:var(--txt);border:1px solid var(--line)}
+.item span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.item button{color:#6d6699;padding:2px 6px}
+.empty{color:#5f5890;text-align:center;font-size:13px;margin-top:20px}
+.sbtn{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;color:var(--dim);border-top:1px solid var(--line);margin-top:6px}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:20;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
+.modal.show{display:flex}
+.sheet{width:100%;max-width:560px;max-height:92dvh;overflow-y:auto;background:var(--bg2);border:1px solid var(--line);border-bottom:0;
+  border-radius:22px 22px 0 0;padding:18px 16px calc(18px + var(--safe-b));animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet h3{margin:0 0 14px;display:flex;justify-content:space-between;align-items:center}
+label{display:block;font-size:12.5px;color:var(--dim);margin:12px 0 5px}
+input[type=text],input[type=password],select,.sheet textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--txt);
+  padding:11px 12px;font:inherit;font-size:16px;outline:0}
+.sheet textarea{min-height:110px;resize:vertical}
+input:focus,select:focus,.sheet textarea:focus{border-color:var(--violet)}
+input[type=range]{width:100%;accent-color:var(--violet)}
+.btns{display:flex;gap:8px;margin-top:16px}
+.btn{flex:1;padding:12px;border-radius:12px;font-weight:700;border:1px solid var(--line);background:var(--panel)}
+.btn.pri{background:linear-gradient(135deg,var(--cyan),var(--violet));color:#07060f;border:0}
+.status{font-size:13px;margin-top:10px;min-height:1.2em}
+.note{font-size:12px;color:#6d6699;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:calc(96px + var(--safe-b));transform:translateX(-50%) translateY(20px);opacity:0;z-index:30;
+  background:var(--panel);border:1px solid var(--cyan);padding:8px 16px;border-radius:20px;font-size:13px;transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="hbtn" id="menuBtn" aria-label="Menu"><svg class="ico" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+  <div class="brand">HUY.AI<small><i class="dot" id="dot"></i><span id="stat">chưa kết nối</span></small></div>
+  <button class="hbtn" id="newTop" aria-label="Chat mới"><svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+</header>
+
+<main id="main"><div class="wrap" id="chat"></div></main>
+
+<footer>
+  <div class="box">
+    <div class="preview" id="preview"><img id="pimg" alt=""><button id="pdel" aria-label="Bỏ ảnh">×</button></div>
+    <div class="row">
+      <button class="cbtn" id="imgBtn" aria-label="Gửi ảnh"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></button>
+      <textarea id="inp" rows="1" placeholder="Hỏi gì hỏi lẹ đi..."></textarea>
+      <button class="cbtn" id="micBtn" aria-label="Nói"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></button>
+      <button class="cbtn send" id="sendBtn" aria-label="Gửi" disabled><svg class="ico" viewBox="0 0 24 24" id="sendIco"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+  <div class="hint">AI cũng có lúc chém gió, check lại thông tin quan trọng nha</div>
+  <input type="file" id="file" accept="image/*" hidden>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside id="drawer">
+  <button class="newbtn" id="newBtn"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Cuộc trò chuyện mới</button>
+  <div class="list" id="list"></div>
+  <button class="sbtn" id="setBtn"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Cài đặt</button>
+</aside>
+
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h3>Cài đặt <button class="mini" id="closeSet">Đóng ✕</button></h3>
+    <label>Link Worker (Cloudflare)</label>
+    <input type="text" id="sUrl" placeholder="https://huy-ai.ten-mày.workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>Mật khẩu (ACCESS_KEY — bỏ trống nếu không đặt)</label>
+    <input type="password" id="sKey" placeholder="••••••" autocomplete="off">
+    <label>Tính cách</label>
+    <select id="sPersona">
+      <option value="lay">Lầy lội, mất dạy (mày - tao)</option>
+      <option value="ban">Bạn thân thân thiện</option>
+      <option value="pro">Nghiêm túc, chuyên nghiệp</option>
+      <option value="custom">Tự viết...</option>
+    </select>
+    <div id="customWrap" style="display:none">
+      <label>System prompt tự chế</label>
+      <textarea id="sCustom" placeholder="Mày là ..."></textarea>
+    </div>
+    <label>Độ sáng tạo: <b id="tVal">0.9</b></label>
+    <input type="range" id="sTemp" min="0" max="1.5" step="0.1" value="0.9">
+    <label><input type="checkbox" id="sTts"> Tự đọc to câu trả lời</label>
+    <div class="btns">
+      <button class="btn" id="testBtn">Test kết nối</button>
+      <button class="btn pri" id="saveBtn">Lưu</button>
+    </div>
+    <div class="status" id="sStat"></div>
+    <div class="btns"><button class="btn" id="wipeBtn" style="color:var(--err)">Xoá hết lịch sử chat</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Dán link Worker của mày vào đây nếu muốn khỏi nhập trong Cài đặt =====
+const DEFAULT_WORKER_URL = "";
+
+const PERSONAS = {
+  lay: `Mày là HUY.AI, một trợ lý AI người Việt, cực kỳ thông minh nhưng lầy lội, xưng "tao" gọi người dùng là "mày". Giọng cà khịa, trêu chọc, "mất dạy" kiểu bạn thân chí cốt, hay khịa nhẹ cho vui — nhưng KHÔNG xúc phạm thật, không tục tĩu nặng. Dù lầy vẫn phải trả lời ĐÚNG, ĐỦ, hữu ích. Câu hỏi kỹ thuật thì giải thích rõ ràng, có code thì dùng code block. Trả lời bằng tiếng Việt trừ khi được yêu cầu khác. Ngắn gọn khi câu hỏi đơn giản.`,
+  ban: `Bạn là HUY.AI, trợ lý AI thân thiện, vui vẻ, nói chuyện như một người bạn thân. Trả lời bằng tiếng Việt tự nhiên, rõ ràng, hữu ích. Dùng markdown khi cần (danh sách, code block).`,
+  pro: `Bạn là HUY.AI, trợ lý AI chuyên nghiệp. Trả lời bằng tiếng Việt, chính xác, có cấu trúc, súc tích. Dùng markdown (tiêu đề ngắn, danh sách, code block) khi phù hợp. Nếu không chắc chắn thì nói rõ.`
+};
+
+const $ = s => document.querySelector(s);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ toast("Bộ nhớ đầy, xoá bớt chat cũ đi"); } }
+};
+
+let cfg = Object.assign({ url: DEFAULT_WORKER_URL, key: "", persona: "lay", custom: "", temp: 0.9, tts: false }, store.get("hai_cfg", {}));
+let chats = store.get("hai_chats", []);
+let curId = store.get("hai_cur", null);
+let pendingImg = null, ctrl = null, busy = false;
+
+// ---------- icon / manifest (tự vẽ, không cần file ngoài) ----------
+(function makeIcon(){
+  const c = document.createElement("canvas"); c.width = c.height = 512; const g = c.getContext("2d");
+  const bg = g.createLinearGradient(0,0,512,512); bg.addColorStop(0,"#0e0c1d"); bg.addColorStop(1,"#07060f");
+  g.fillStyle = bg; g.fillRect(0,0,512,512);
+  const r = g.createLinearGradient(80,80,432,432); r.addColorStop(0,"#22e7ff"); r.addColorStop(.5,"#8b5cff"); r.addColorStop(1,"#ff2bd6");
+  g.shadowColor = "#22e7ff"; g.shadowBlur = 40; g.lineWidth = 34; g.strokeStyle = r;
+  g.beginPath(); g.arc(256,256,160,0,Math.PI*2); g.stroke();
+  g.shadowBlur = 30; g.fillStyle = r; g.font = "900 150px system-ui,sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText("AI",256,266);
+  const url = c.toDataURL("image/png");
+  $("#favicon").href = url; $("#appleIcon").href = url;
+  const man = { name:"HUY.AI", short_name:"HUY.AI", start_url: location.href.split("#")[0], display:"standalone",
+    background_color:"#07060f", theme_color:"#07060f", icons:[{src:url, sizes:"512x512", type:"image/png", purpose:"any maskable"}] };
+  $("#manifest").href = "data:application/manifest+json," + encodeURIComponent(JSON.stringify(man));
+})();
+
+// ---------- markdown mini ----------
+function esc(s){ return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function inline(s){
+  const codes = [];
+  s = s.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return "\u0000" + (codes.length-1) + "\u0000"; });
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+       .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
+       .replace(/~~([^~]+)~~/g, "<del>$1</del>")
+       .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+       .replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => "<code>" + codes[i] + "</code>");
+}
+function md(src){
+  const blocks = [];
+  src = esc(src).replace(/```([\w+-]*)\n?([\s\S]*?)(```|$)/g, (_, lang, code) => {
+    blocks.push(`<div class="pre"><div class="lang"><span>${lang || "code"}</span><button class="mini" data-copy>Copy</button></div><pre><code>${code.replace(/\n$/,"")}</code></pre></div>`);
+    return "\n\u0001" + (blocks.length-1) + "\u0001\n";
+  });
+  const lines = src.split("\n"); let out = "", list = null, para = [];
+  const flushP = () => { if (para.length){ out += "<p>" + inline(para.join("<br>")) + "</p>"; para = []; } };
+  const flushL = () => { if (list){ out += `</${list}>`; list = null; } };
+  for (let i = 0; i < lines.length; i++){
+    const l = lines[i]; let m;
+    if (m = l.match(/^\u0001(\d+)\u0001$/)){ flushP(); flushL(); out += blocks[m[1]]; continue; }
+    if (/^\s*$/.test(l)){ flushP(); flushL(); continue; }
+    if (m = l.match(/^(#{1,6})\s+(.*)/)){ flushP(); flushL(); const n = Math.min(3, m[1].length); out += `<h${n}>${inline(m[2])}</h${n}>`; continue; }
+    if (/^\s*([-*_])\s*\1\s*\1[\s\-*_]*$/.test(l)){ flushP(); flushL(); out += "<hr style='border:0;border-top:1px solid var(--line)'>"; continue; }
+    if (m = l.match(/^&gt;\s?(.*)/)){ flushP(); flushL(); out += `<blockquote>${inline(m[1])}</blockquote>`; continue; }
+    if (/^\s*\|.*\|\s*$/.test(l) && /^\s*\|?[\s:-]+\|/.test(lines[i+1] || "")){
+      flushP(); flushL();
+      const row = r => r.trim().replace(/^\||\|$/g, "").split("|").map(c => inline(c.trim()));
+      let t = "<table><tr>" + row(l).map(c => `<th>${c}</th>`).join("") + "</tr>"; i++;
+      while (i+1 < lines.length && /^\s*\|.*\|\s*$/.test(lines[i+1])){ i++; t += "<tr>" + row(lines[i]).map(c => `<td>${c}</td>`).join("") + "</tr>"; }
+      out += t + "</table>"; continue;
+    }
+    if (m = l.match(/^\s*[-*+]\s+(.*)/)){ flushP(); if (list !== "ul"){ flushL(); out += "<ul>"; list = "ul"; } out += `<li>${inline(m[1])}</li>`; continue; }
+    if (m = l.match(/^\s*\d+[.)]\s+(.*)/)){ flushP(); if (list !== "ol"){ flushL(); out += "<ol>"; list = "ol"; } out += `<li>${inline(m[1])}</li>`; continue; }
+    flushL(); para.push(l);
+  }
+  flushP(); flushL();
+  return out;
+}
+
+// ---------- data ----------
+const cur = () => chats.find(c => c.id === curId);
+const save = () => { store.set("hai_chats", chats); store.set("hai_cur", curId); };
+function newChat(){
+  const c = cur(); if (c && !c.msgs.length){ closeDrawer(); inp.focus(); return; }
+  curId = null; save(); render(); renderList(); closeDrawer(); inp.focus();
+}
+function sysPrompt(){
+  const base = cfg.persona === "custom" ? (cfg.custom || PERSONAS.ban) : PERSONAS[cfg.persona];
+  const now = new Date().toLocaleString("vi-VN", { dateStyle: "full", timeStyle: "short" });
+  return base + `\n\nThời gian hiện tại của người dùng: ${now}.`;
+}
+
+// ---------- render ----------
+const chatEl = $("#chat"), mainEl = $("#main"), inp = $("#inp"), sendBtn = $("#sendBtn");
+const ICO = {
+  copy: '<svg class="ico" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+  redo: '<svg class="ico" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>',
+  speak:'<svg class="ico" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5ZM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>'
+};
+function msgEl(m, i, last){
+  const d = document.createElement("div");
+  d.className = "msg " + (m.role === "user" ? "user" : "bot");
+  if (m.role === "user"){
+    d.innerHTML = `<div class="bubble">${m.image ? `<img src="data:${m.image.mime};base64,${m.image.data}" alt="">` : ""}${esc(m.content)}</div>`;
+  } else {
+    d.innerHTML = `<div class="av">AI</div><div style="min-width:0;flex:1"><div class="bubble${m.error ? " err" : ""}">${md(m.content)}</div>
+      <div class="acts"><button data-act="copy" data-i="${i}">${ICO.copy}Copy</button>
+      <button data-act="speak" data-i="${i}">${ICO.speak}Đọc</button>
+      ${last ? `<button data-act="redo">${ICO.redo}Trả lời lại</button>` : ""}</div></div>`;
+  }
+  return d;
+}
+function render(){
+  const c = cur(); chatEl.innerHTML = "";
+  if (!c || !c.msgs.length){
+    chatEl.innerHTML = `<div class="welcome"><div class="orb"></div><h2>Ê, cần gì nói lẹ</h2>
+      <p>Tao là HUY.AI — hỏi gì cũng được, gửi ảnh cũng được, lười gõ thì bấm mic mà nói.</p>
+      <div class="chips">
+        <button class="chip" data-q="Viết cho tao caption TikTok thật cháy cho video edit mới"><b>✍️ Caption</b>Viết caption TikTok cháy</button>
+        <button class="chip" data-q="Giải thích cho tao Cloudflare Worker là gì, dễ hiểu như cho con nít"><b>🧠 Giải thích</b>Cloudflare Worker là gì?</button>
+        <button class="chip" data-q="Lên kế hoạch 1 tuần để tao học JavaScript từ số 0"><b>📅 Kế hoạch</b>Học JS trong 1 tuần</button>
+        <button class="chip" data-q="Kể một chuyện cười thật mất dạy nhưng không tục"><b>😂 Giải trí</b>Kể chuyện cười</button>
+      </div></div>`;
+    return;
+  }
+  const lastBot = c.msgs.length - 1;
+  c.msgs.forEach((m, i) => chatEl.appendChild(msgEl(m, i, i === lastBot && m.role === "assistant" && !busy)));
+  scrollDown(true);
+}
+function scrollDown(force){
+  const near = mainEl.scrollHeight - mainEl.scrollTop - mainEl.clientHeight < 160;
+  if (force || near) mainEl.scrollTop = mainEl.scrollHeight;
+}
+function renderList(){
+  const L = $("#list");
+  const has = chats.filter(c => c.msgs.length);
+  if (!has.length){ L.innerHTML = `<div class="empty">Chưa có cuộc chat nào</div>`; return; }
+  L.innerHTML = has.sort((a,b) => b.t - a.t).map(c =>
+    `<div class="item${c.id === curId ? " active" : ""}" data-id="${c.id}"><span>${esc(c.title || "Chat mới")}</span><button data-del="${c.id}" aria-label="Xoá">✕</button></div>`).join("");
+}
+
+// ---------- send ----------
+async function send(text, regen){
+  if (busy) return;
+  if (!cfg.url){ openSet(); toast("Nhập link Worker trước đã mày"); return; }
+  let c = cur();
+  if (!regen){
+    text = (text || "").trim();
+    if (!text && !pendingImg) return;
+    if (!c){ c = { id: Date.now().toString(36), title: "", msgs: [], t: Date.now() }; chats.push(c); curId = c.id; }
+    const um = { role: "user", content: text || "Mày thấy gì trong ảnh này?" };
+    if (pendingImg) um.image = pendingImg;
+    c.msgs.push(um);
+    if (!c.title) c.title = um.content.slice(0, 48);
+    inp.value = ""; autoGrow(); clearImg();
+  }
+  c.t = Date.now(); save(); renderList();
+  busy = true; setSendState(); render();
+
+  const bot = { role: "assistant", content: "" };
+  const holder = msgEl(bot, 0, false); const bub = holder.querySelector(".bubble");
+  holder.querySelector(".acts").style.display = "none";
+  bub.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+  chatEl.appendChild(holder); scrollDown(true);
+
+  ctrl = new AbortController();
+  // chỉ gửi ảnh của 4 tin gần nhất cho nhẹ
+  const payloadMsgs = c.msgs.filter(m => !m.error).map((m, i, a) => {
+    const o = { role: m.role, content: m.content };
+    if (m.image && i >= a.length - 4) o.image = m.image;
+    return o;
+  });
+  try {
+    const res = await fetch(cfg.url, {
+      method: "POST", signal: ctrl.signal,
+      headers: { "Content-Type": "application/json", ...(cfg.key ? { "X-Access-Key": cfg.key } : {}) },
+      body: JSON.stringify({ messages: payloadMsgs, system: sysPrompt(), temperature: cfg.temp })
+    });
+    if (!res.ok){
+      let e = res.status + ""; try{ e = (await res.json()).error || e; }catch{}
+      throw new Error(e);
+    }
+    setDot(true, res.headers.get("X-Provider") === "workers-ai" ? "online · Workers AI" : "online · Gemini");
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let raf = 0;
+    while (true){
+      const { done, value } = await reader.read();
+      if (done) break;
+      bot.content += dec.decode(value, { stream: true });
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; bub.innerHTML = md(bot.content); bub.classList.add("caret"); scrollDown(); });
+    }
+    if (!bot.content.trim()) bot.content = "_(AI im re không nói gì, thử hỏi lại xem)_";
+  } catch (e){
+    if (e.name === "AbortError"){ bot.content += bot.content ? "\n\n_(đã dừng)_" : "_(đã dừng)_"; }
+    else { bot.error = true; bot.content = "**Lỗi rồi:** " + e.message + "\n\nKiểm tra lại link Worker / mật khẩu trong Cài đặt nha."; setDot(false, "lỗi kết nối"); }
+  }
+  c.msgs.push(bot); c.t = Date.now(); save();
+  busy = false; ctrl = null; setSendState(); render();
+  if (cfg.tts && !bot.error) speak(bot.content);
+}
+function setSendState(){
+  sendBtn.classList.toggle("stop", busy);
+  $("#sendIco").innerHTML = busy ? '<rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>' : '<path d="M5 12h14M13 6l6 6-6 6"/>';
+  sendBtn.disabled = !busy && !inp.value.trim() && !pendingImg;
+}
+
+// ---------- image ----------
+$("#imgBtn").onclick = () => $("#file").click();
+$("#file").onchange = e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  const img = new Image(), rd = new FileReader();
+  rd.onload = () => { img.src = rd.result; };
+  img.onload = () => {
+    const max = 1280, s = Math.min(1, max / Math.max(img.width, img.height));
+    const cv = document.createElement("canvas"); cv.width = img.width * s; cv.height = img.height * s;
+    cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+    const url = cv.toDataURL("image/jpeg", .82);
+    pendingImg = { mime: "image/jpeg", data: url.split(",")[1] };
+    $("#pimg").src = url; $("#preview").classList.add("show"); setSendState();
+  };
+  rd.readAsDataURL(f);
+};
+function clearImg(){ pendingImg = null; $("#preview").classList.remove("show"); setSendState(); }
+$("#pdel").onclick = clearImg;
+
+// ---------- voice ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+$("#micBtn").onclick = () => {
+  if (!SR){ toast("Trình duyệt này không hỗ trợ nói, xài Chrome đi"); return; }
+  if (rec){ rec.stop(); return; }
+  rec = new SR(); rec.lang = "vi-VN"; rec.interimResults = true; rec.continuous = false;
+  const base = inp.value ? inp.value + " " : "";
+  rec.onresult = e => { inp.value = base + Array.from(e.results).map(r => r[0].transcript).join(""); autoGrow(); setSendState(); };
+  rec.onend = () => { $("#micBtn").classList.remove("rec"); rec = null; if (inp.value.trim()) send(inp.value); };
+  rec.onerror = e => { if (e.error !== "no-speech" && e.error !== "aborted") toast("Mic lỗi: " + e.error); };
+  $("#micBtn").classList.add("rec"); rec.start();
+};
+function speak(text){
+  if (!("speechSynthesis" in window)) return toast("Máy không hỗ trợ đọc");
+  speechSynthesis.cancel();
+  const clean = text.replace(/```[\s\S]*?```/g, " đoạn code ").replace(/[*_#`>|]/g, "").slice(0, 3000);
+  const u = new SpeechSynthesisUtterance(clean); u.lang = "vi-VN";
+  const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith("vi")); if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+
+// ---------- events ----------
+function autoGrow(){ inp.style.height = "auto"; inp.style.height = Math.min(inp.scrollHeight, 160) + "px"; }
+inp.addEventListener("input", () => { autoGrow(); setSendState(); });
+inp.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing && matchMedia("(pointer:fine)").matches){ e.preventDefault(); send(inp.value); }
+});
+sendBtn.onclick = () => busy ? ctrl && ctrl.abort() : send(inp.value);
+
+chatEl.addEventListener("click", e => {
+  const chip = e.target.closest("[data-q]"); if (chip) return send(chip.dataset.q);
+  const cp = e.target.closest("[data-copy]");
+  if (cp){ copy(cp.closest(".pre").querySelector("code").innerText); return; }
+  const a = e.target.closest("[data-act]"); if (!a) return;
+  const c = cur(); if (!c) return;
+  if (a.dataset.act === "copy") copy(c.msgs[a.dataset.i].content);
+  if (a.dataset.act === "speak") speak(c.msgs[a.dataset.i].content);
+  if (a.dataset.act === "redo"){ c.msgs.pop(); save(); send("", true); }
+});
+function copy(t){
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Copy rồi đó"))
+    .catch(() => { const x = document.createElement("textarea"); x.value = t; document.body.appendChild(x); x.select(); document.execCommand("copy"); x.remove(); toast("Copy rồi đó"); });
+}
+
+// drawer
+const openDrawer = () => { renderList(); $("#drawer").classList.add("show"); $("#scrim").classList.add("show"); };
+const closeDrawer = () => { $("#drawer").classList.remove("show"); $("#scrim").classList.remove("show"); };
+$("#menuBtn").onclick = openDrawer; $("#scrim").onclick = closeDrawer;
+$("#newBtn").onclick = newChat; $("#newTop").onclick = newChat;
+$("#list").onclick = e => {
+  const del = e.target.closest("[data-del]");
+  if (del){ if (!confirm("Xoá cuộc chat này?")) return; chats = chats.filter(c => c.id !== del.dataset.del); if (curId === del.dataset.del) curId = null; save(); renderList(); render(); return; }
+  const it = e.target.closest("[data-id]"); if (it && !busy){ curId = it.dataset.id; save(); render(); closeDrawer(); }
+};
+
+// settings
+function openSet(){
+  $("#sUrl").value = cfg.url; $("#sKey").value = cfg.key; $("#sPersona").value = cfg.persona; $("#sCustom").value = cfg.custom;
+  $("#sTemp").value = cfg.temp; $("#tVal").textContent = cfg.temp; $("#sTts").checked = cfg.tts;
+  $("#customWrap").style.display = cfg.persona === "custom" ? "block" : "none"; $("#sStat").textContent = "";
+  closeDrawer(); $("#modal").classList.add("show");
+}
+const closeSet = () => $("#modal").classList.remove("show");
+$("#setBtn").onclick = openSet; $("#closeSet").onclick = closeSet;
+$("#modal").onclick = e => { if (e.target.id === "modal") closeSet(); };
+$("#sPersona").onchange = e => $("#customWrap").style.display = e.target.value === "custom" ? "block" : "none";
+$("#sTemp").oninput = e => $("#tVal").textContent = e.target.value;
+function readSet(){
+  return { url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value, persona: $("#sPersona").value,
+    custom: $("#sCustom").value, temp: +$("#sTemp").value, tts: $("#sTts").checked };
+}
+$("#saveBtn").onclick = () => { cfg = readSet(); store.set("hai_cfg", cfg); closeSet(); toast("Lưu rồi"); ping(); };
+$("#testBtn").onclick = async () => {
+  const s = readSet(), st = $("#sStat");
+  if (!s.url){ st.innerHTML = "<span style='color:var(--err)'>Chưa nhập link Worker</span>"; return; }
+  st.textContent = "Đang test...";
+  try {
+    const r = await fetch(s.url); const j = await r.json();
+    if (!j.ok) throw new Error("Link này không phải Worker HUY.AI");
+    const p = [j.gemini && "Gemini ✓", j.workersAI && "Workers AI ✓"].filter(Boolean).join(" · ") || "chưa có AI nào (thiếu key/binding)";
+    st.innerHTML = `<span style="color:var(--ok)">Kết nối ngon!</span> ${p}${j.locked ? " · có mật khẩu" : ""}`;
+  } catch (e){ st.innerHTML = `<span style="color:var(--err)">Toang: ${esc(e.message)}</span>`; }
+};
+$("#wipeBtn").onclick = () => { if (!confirm("Xoá SẠCH lịch sử chat?")) return; chats = []; curId = null; save(); render(); renderList(); closeSet(); toast("Sạch bóng"); };
+
+function setDot(on, txt){ $("#dot").className = "dot " + (on ? "on" : "off"); $("#stat").textContent = txt; }
+async function ping(){
+  if (!cfg.url){ setDot(false, "chưa có link Worker"); return; }
+  try { const j = await (await fetch(cfg.url)).json(); setDot(!!(j.gemini || j.workersAI), j.gemini ? "online · Gemini" : j.workersAI ? "online · Workers AI" : "Worker thiếu AI"); }
+  catch { setDot(false, "không kết nối được"); }
+}
+let tt; function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => el.classList.remove("show"), 1800); }
+
+render(); renderList(); setSendState(); ping();
+if (!cfg.url) setTimeout(openSet, 400);
+</script>
+</body>
+</html>
